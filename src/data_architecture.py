@@ -79,20 +79,10 @@ class Data_Architecture:
             "financials": self.financial_schema
         }
 
-    def construct(self, random_seed=42):
+    def construct(self, n_samples=500, random_seed=42):
         np.random.seed(random_seed)
-        all_vars = {}
-        def synth_value(vtype):
-            if vtype == "int":
-                return int(np.random.randint(1,1000))
-            elif vtype == "float":
-                return float(np.random.normal(0,1))
-            elif vtype == "category":
-                return np.random.choice(["A", "B", "C"])
-            else:
-                return None 
 
-        # merge all schames into one flat dictionary
+        all_schemas = {}
         for schema in [
             self.site_schema,
             self.cage_schema,
@@ -101,11 +91,50 @@ class Data_Architecture:
             self.operations_schema,
             self.financial_schema,
         ]:
-            for var, vtype in schema.items():
-                all_vars[var] = synth_value(vtype)
-        return pd.Series(all_vars).to_frame(name="synthetic_observation")
+            all_schemas.update(schema)
 
+        data = {}
+
+        for var, vtype in all_schemas.items():
+
+            if vtype == "int":
+                base = np.linspace(1, 1000, n_samples)
+                noise = np.random.normal(0, 50, n_samples)
+                data[var] = np.clip((base + noise).astype(int), 1, None)
+
+            elif vtype == "float":
+                base = np.linspace(0, 1, n_samples)
+                noise = np.random.normal(0, 0.2, n_samples)
+                data[var] = base + noise
+
+            elif vtype == "category":
+                categories = ["A", "B", "C"]
+                data[var] = np.random.choice(categories, size=n_samples)
+
+            else:
+                data[var] = [None] * n_samples
+
+        return pd.DataFrame(data)
+
+    def data(self,
+             n_samples = 500,
+             filepath="synthetic_aquaculture.json",
+             orient="records",
+             random_seed=42):
+
+        df = self.construct(n_samples=n_samples, random_seed=random_seed)
+        df.to_json(
+            filepath,
+            orient=orient,
+            indent=2
+        )
+        return filepath
 
 x = Data_Architecture()
-y = x.construct()
-print(y)
+
+json_path = x.data(
+    n_samples=500,
+    filepath="aquaculture_dataset.json"
+)
+
+print("Saved to:", json_path)
