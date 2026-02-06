@@ -79,6 +79,33 @@ class Data_Architecture:
             "financials": self.financial_schema
         }
 
+    def construct(self, random_seed=42):
+        np.random.seed(random_seed)
+        all_vars = {}
+        def synth_value(vtype):
+            if vtype == "int":
+                return int(np.random.randint(1,1000))
+            elif vtype == "float":
+                return float(np.random.normal(0,1))
+            elif vtype == "category":
+                return np.random.choice(["A", "B", "C"])
+            else:
+                return None 
+
+        # merge all schames into one flat dictionary
+        for schema in [
+            self.site_schema,
+            self.cage_schema,
+            self.cohort_schema,
+            self.water_quality_schema,
+            self.operations_schema,
+            self.financial_schema,
+        ]:
+            for var, vtype in schema.items():
+                all_vars[var] = synth_value(vtype)
+        return pd.Series(all_vars).to_frame(name="synthetic_observation")
+
 
 x = Data_Architecture()
-print(x.summary())
+y = x.construct()
+print(y)
