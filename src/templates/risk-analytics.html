@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Analytics - Aquaculture App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Aquaculture Management System</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
+            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
+            <li><a href="/species" class="btn btn-outline">Species</a></li>
+            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
+            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
+            <li><a href="/model-results" class="btn btn-outline">Models</a></li>
+            <li><a href="/risk-analytics" class="btn btn-primary">Risk Analytics</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <div class="card">
+            <h2>Monte Carlo Financial Risk Analysis</h2>
+            <p class="text-light">Stochastic simulation of {{ metadata.n_simulations|number_format }} scenarios over {{ metadata.time_horizon_days }} days</p>
+            <p class="text-light"><em>Generated: {{ metadata.generated_at }}</em></p>
+        </div>
+
+        <!-- Key Risk Metrics -->
+        <div class="grid">
+            <div class="card">
+                <h2>Expected Profit</h2>
+                <div class="stat-number">${{ "{:,.0f}".format(stats.mean_profit) }}</div>
+                <p class="text-light">Mean outcome across scenarios</p>
+                <div class="model-metric">
+                    <span class="metric-label">Median:</span>
+                    <span class="metric-value">${{ "{:,.0f}".format(stats.median_profit) }}</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Value at Risk (95%)</h2>
+                <div class="stat-number" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${{ "{:,.0f}".format(stats.var_95) }}</div>
+                <p class="text-light">Worst-case loss (5% scenarios)</p>
+                <div class="model-metric">
+                    <span class="metric-label">CVaR (95%):</span>
+                    <span class="metric-value">${{ "{:,.0f}".format(stats.cvar_95) }}</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Sharpe Ratio</h2>
+                <div class="stat-number">{{ "%.3f"|format(stats.sharpe_ratio) }}</div>
+                <p class="text-light">Risk-adjusted returns</p>
+                <div class="model-metric">
+                    <span class="metric-label">Mean ROI:</span>
+                    <span class="metric-value">{{ "{:.1f}%".format(stats.mean_roi * 100) }}</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Probability of Loss</h2>
+                {% if stats.prob_loss > 0.2 %}
+                <div class="stat-number" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    {{ "{:.1f}%".format(stats.prob_loss * 100) }}
+                </div>
+                {% else %}
+                <div class="stat-number" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    {{ "{:.1f}%".format(stats.prob_loss * 100) }}
+                </div>
+                {% endif %}
+                <p class="text-light">Likelihood of unprofitability</p>
+                <div class="model-metric">
+                    <span class="metric-label">Profit Prob:</span>
+                    <span class="metric-value">{{ "{:.1f}%".format(stats.prob_profit * 100) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Distribution and VaR -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Profit Distribution</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="profitHistogram"
+                            data-profits="{{ profit_data }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Risk Metrics Visualization</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="varChart"
+                            data-mean="{{ stats.mean_profit }}"
+                            data-median="{{ stats.median_profit }}"
+                            data-var95="{{ stats.var_95 }}"
+                            data-var99="{{ stats.var_99 }}"
+                            data-p10="{{ stats.profit_p10 }}"
+                            data-p25="{{ stats.profit_p25 }}"
+                            data-p75="{{ stats.profit_p75 }}"
+                            data-p90="{{ stats.profit_p90 }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Scatter and ROI -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Profit vs ROI Scatter</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="profitRoiScatter"
+                            data-profits="{{ profit_data }}"
+                            data-rois="{{ roi_data }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>ROI Distribution</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="roiHistogram"
+                            data-rois="{{ roi_data }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 3: Survival and Mortality -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Survival Rate Impact on Profit</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="survivalProfitScatter"
+                            data-survival="{{ survival_data }}"
+                            data-profits="{{ profit_data }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Mortality Events Distribution</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="mortalityChart"
+                            data-events="{{ mortality_events }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cumulative Distribution -->
+        <div class="card">
+            <h2>Cumulative Profit Distribution (CDF)</h2>
+            <div class="chart-container" style="height: 450px;">
+                <canvas id="cdfChart"
+                        data-profits="{{ sorted_profits }}"></canvas>
+            </div>
+        </div>
+
+        <!-- Scenario Breakdown Table -->
+        <div class="card">
+            <h2>Percentile Analysis</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Percentile</th>
+                            <th>Profit ($)</th>
+                            <th>ROI (%)</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1st (Worst Case)</strong></td>
+                            <td style="color: var(--error);">${{ "{:,.0f}".format(stats.var_99) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_p01 * 100) }}</td>
+                            <td>99% of scenarios perform better</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5th (VaR 95%)</strong></td>
+                            <td style="color: var(--error);">${{ "{:,.0f}".format(stats.var_95) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_p05 * 100) }}</td>
+                            <td>95% of scenarios perform better</td>
+                        </tr>
+                        <tr>
+                            <td><strong>10th</strong></td>
+                            <td style="color: var(--warning);">${{ "{:,.0f}".format(stats.profit_p10) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_p10 * 100) }}</td>
+                            <td>Lower bound expectation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>25th (Q1)</strong></td>
+                            <td>${{ "{:,.0f}".format(stats.profit_p25) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_p25 * 100) }}</td>
+                            <td>First quartile</td>
+                        </tr>
+                        <tr style="background: var(--info-light);">
+                            <td><strong>50th (Median)</strong></td>
+                            <td><strong>${{ "{:,.0f}".format(stats.median_profit) }}</strong></td>
+                            <td><strong>{{ "{:.1f}%".format(stats.median_roi * 100) }}</strong></td>
+                            <td><strong>Most likely outcome</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>75th (Q3)</strong></td>
+                            <td style="color: var(--success);">${{ "{:,.0f}".format(stats.profit_p75) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_p75 * 100) }}</td>
+                            <td>Third quartile</td>
+                        </tr>
+                        <tr>
+                            <td><strong>90th</strong></td>
+                            <td style="color: var(--success);">${{ "{:,.0f}".format(stats.profit_p90) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_p90 * 100) }}</td>
+                            <td>Upper bound expectation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best Case</strong></td>
+                            <td style="color: var(--success);">${{ "{:,.0f}".format(stats.max_profit) }}</td>
+                            <td>{{ "{:.1f}%".format(percentile_data.roi_max * 100) }}</td>
+                            <td>Maximum observed profit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top/Bottom Scenarios -->
+        <div class="grid">
+            <div class="card">
+                <h2>Best Case Scenarios</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Profit</th>
+                                <th>ROI</th>
+                                <th>Survival</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scenario in best_scenarios[:5] %}
+                            <tr>
+                                <td><strong>#{{ scenario.simulation_id }}</strong></td>
+                                <td style="color: var(--success);">${{ "{:,.0f}".format(scenario.profit) }}</td>
+                                <td>{{ "{:.1f}%".format(scenario.roi * 100) }}</td>
+                                <td>{{ "{:.1f}%".format(scenario.survival_rate * 100) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Worst Case Scenarios</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Profit</th>
+                                <th>ROI</th>
+                                <th>Mortality Events</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scenario in worst_scenarios[:5] %}
+                            <tr>
+                                <td><strong>#{{ scenario.simulation_id }}</strong></td>
+                                <td style="color: var(--error);">${{ "{:,.0f}".format(scenario.profit) }}</td>
+                                <td>{{ "{:.1f}%".format(scenario.roi * 100) }}</td>
+                                <td>{{ scenario.n_mortality_events }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Insights -->
+        <div class="card">
+            <h2>Risk Assessment & Recommendations</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                {% if stats.prob_loss > 0.2 %}
+                <div class="alert alert-error">
+                    <strong>High Risk Alert:</strong> {{ "{:.1f}%".format(stats.prob_loss * 100) }} probability of loss detected. Consider risk mitigation strategies such as diversification, insurance, or reducing exposure.
+                </div>
+                {% elif stats.prob_loss > 0.1 %}
+                <div class="alert alert-warning">
+                    <strong>Moderate Risk:</strong> {{ "{:.1f}%".format(stats.prob_loss * 100) }} probability of loss. Monitor closely and maintain adequate capital reserves.
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <strong>Low Risk:</strong> Only {{ "{:.1f}%".format(stats.prob_loss * 100) }} probability of loss. Operation shows strong risk profile.
+                </div>
+                {% endif %}
+                
+                {% if stats.sharpe_ratio > 1.5 %}
+                <div class="alert alert-success">
+                    <strong>Excellent Risk-Adjusted Returns:</strong> Sharpe ratio of {{ "%.2f"|format(stats.sharpe_ratio) }} indicates superior risk-adjusted performance.
+                </div>
+                {% elif stats.sharpe_ratio > 1.0 %}
+                <div class="alert alert-info">
+                    <strong>Good Risk-Adjusted Returns:</strong> Sharpe ratio of {{ "%.2f"|format(stats.sharpe_ratio) }} shows acceptable risk compensation.
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <strong>Low Risk-Adjusted Returns:</strong> Sharpe ratio of {{ "%.2f"|format(stats.sharpe_ratio) }} suggests room for efficiency improvements.
+                </div>
+                {% endif %}
+                
+                {% if stats.prob_high_return > 0.7 %}
+                <div class="alert alert-success">
+                    <strong>High Return Probability:</strong> {{ "{:.1f}%".format(stats.prob_high_return * 100) }} chance of achieving >30% ROI. Strong profit potential.
+                </div>
+                {% endif %}
+                
+                <div class="alert alert-info">
+                    <strong>Statistical Confidence:</strong> With {{ metadata.n_simulations|number_format }} simulations, results are statistically robust for decision-making.
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/risk-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

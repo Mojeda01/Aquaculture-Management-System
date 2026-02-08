@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 import json
 import os
+import numpy as np
 
 app = Flask(__name__)
 
@@ -782,6 +783,96 @@ def model_results():
                          all_ols_coefs=all_ols_coefs_json,
                          all_glsar_coefs=all_glsar_coefs_json,
                          significant_count=significant_count)
+
+@app.route('/risk-analytics')
+def risk_analytics():
+    """Display Monte Carlo simulation risk analytics"""
+    import json as json_module
+    import os
+    
+    # Try to load Monte Carlo results
+    mc_path_options = [
+        'models/monte_carlo_results.json',
+        '../models/monte_carlo_results.json',
+        'data/monte_carlo_results.json',
+        '../data/monte_carlo_results.json'
+    ]
+    
+    mc_results = None
+    for path in mc_path_options:
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                mc_results = json_module.load(f)
+            break
+    
+    if not mc_results:
+        return render_template('risk-analytics.html',
+                             metadata={'n_simulations': 0, 'time_horizon_days': 0, 'generated_at': 'N/A'},
+                             stats={},
+                             profit_data='[]',
+                             roi_data='[]',
+                             survival_data='[]',
+                             mortality_events='[]',
+                             sorted_profits='[]',
+                             percentile_data={},
+                             best_scenarios=[],
+                             worst_scenarios=[])
+    
+    # Extract metadata and statistics
+    metadata = mc_results['metadata']
+    stats = mc_results['summary_statistics']
+    scenarios = mc_results['scenarios']
+    
+    # Extract data arrays for charts
+    profit_data = [s['profit'] for s in scenarios]
+    roi_data = [s['roi'] for s in scenarios]
+    survival_data = [s['survival_rate'] for s in scenarios]
+    mortality_events = [s['n_mortality_events'] for s in scenarios]
+    
+    # Sorted profits for CDF
+    sorted_profits = sorted(profit_data)
+    
+    # Calculate additional percentiles for ROI
+    roi_array = np.array(roi_data)
+    percentile_data = {
+        'roi_p01': float(np.percentile(roi_array, 1)),
+        'roi_p05': float(np.percentile(roi_array, 5)),
+        'roi_p10': float(np.percentile(roi_array, 10)),
+        'roi_p25': float(np.percentile(roi_array, 25)),
+        'roi_p75': float(np.percentile(roi_array, 75)),
+        'roi_p90': float(np.percentile(roi_array, 90)),
+        'roi_max': float(np.max(roi_array))
+    }
+    
+    # Get best and worst scenarios
+    scenarios_sorted = sorted(scenarios, key=lambda x: x['profit'], reverse=True)
+    best_scenarios = scenarios_sorted[:10]
+    worst_scenarios = scenarios_sorted[-10:][::-1]  # Reverse to show worst first
+    
+    # Convert to JSON for charts
+    profit_data_json = json.dumps(profit_data)
+    roi_data_json = json.dumps(roi_data)
+    survival_data_json = json.dumps(survival_data)
+    mortality_events_json = json.dumps(mortality_events)
+    sorted_profits_json = json.dumps(sorted_profits)
+    
+    # Custom filter for number formatting
+    def number_format(value):
+        return f"{value:,}"
+    
+    app.jinja_env.filters['number_format'] = number_format
+    
+    return render_template('risk-analytics.html',
+                         metadata=metadata,
+                         stats=stats,
+                         profit_data=profit_data_json,
+                         roi_data=roi_data_json,
+                         survival_data=survival_data_json,
+                         mortality_events=mortality_events_json,
+                         sorted_profits=sorted_profits_json,
+                         percentile_data=percentile_data,
+                         best_scenarios=best_scenarios,
+                         worst_scenarios=worst_scenarios)
 
 if __name__ == '__main__':
     app.run(debug=True)
