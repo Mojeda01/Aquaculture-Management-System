@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sites - Aquaculture App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Aquaculture Management System</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
+            <li><a href="/sites" class="btn btn-primary">Sites</a></li>
+            <li><a href="/species" class="btn btn-outline">Species</a></li>
+            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
+            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
+             <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- Top Row: Pie Charts -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Sites by Regulatory Zone</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="regulatoryZoneChart" 
+                            data-labels="{{ zone_labels }}"
+                            data-counts="{{ zone_counts }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Species Distribution</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="speciesChart"
+                            data-labels="{{ species_labels }}"
+                            data-counts="{{ species_counts }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Row: Water Quality Radar and Cage Distribution -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Average Water Conditions</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="waterQualityChart"
+                            data-avg-temp="{{ avg_water_temp }}"
+                            data-avg-salinity="{{ avg_salinity }}"
+                            data-avg-depth="{{ avg_water_depth }}"
+                            data-avg-current="{{ avg_current_speed }}"
+                            data-avg-wave="{{ avg_wave_exposure }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Top Sites by Cage Count</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="cageDistributionChart"
+                            data-labels="{{ top_site_labels }}"
+                            data-counts="{{ top_site_counts }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Profit Trend -->
+        <div class="card">
+            <h2>Profit Margin by Site</h2>
+            <div class="chart-container" style="height: 300px;">
+                <canvas id="profitTrendChart"
+                        data-site-ids="{{ profit_site_ids }}"
+                        data-profit-margins="{{ profit_margins }}"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Site Overview</h2>
+            <p class="text-light">Monitoring {{ sites|length }} active aquaculture sites</p>
+        </div>
+
+        <!-- Sites Grid -->
+        <div class="grid">
+            {% for site in sites %}
+            <div class="card">
+                <h2>Site #{{ site.site_id }}</h2>
+                
+                <div class="site-details">
+                    <div class="detail-row">
+                        <strong>Location:</strong>
+                        <span>{{ "%.4f"|format(site.latitude) }}, {{ "%.4f"|format(site.longitude) }}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Water Depth:</strong>
+                        <span>{{ "%.2f"|format(site.water_depth_m) }} m</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Distance from Shore:</strong>
+                        <span>{{ "%.2f"|format(site.distance_from_shore_km) }} km</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Current Speed:</strong>
+                        <span>{{ "%.2f"|format(site.avg_current_speed_m_s) }} m/s</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Water Temperature:</strong>
+                        <span>{{ "%.1f"|format(site.water_temp_c) }}°C</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Salinity:</strong>
+                        <span>{{ "%.2f"|format(site.salinity_psu) }} PSU</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Wave Exposure:</strong>
+                        <span>{{ "%.2f"|format(site.wave_exposure_index) }}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Regulatory Zone:</strong>
+                        <span class="badge badge-info">{{ site.regulatory_zone }}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <strong>Active Cages:</strong>
+                        <span class="badge badge-success">{{ site.cage_count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Detailed Sites Table -->
+        <div class="card">
+            <h2>All Sites Data</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Site ID</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Water Depth (m)</th>
+                            <th>Shore Distance (km)</th>
+                            <th>Current Speed (m/s)</th>
+                            <th>Temperature (°C)</th>
+                            <th>Salinity (PSU)</th>
+                            <th>Regulatory Zone</th>
+                            <th>Active Cages</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in sites %}
+                        <tr>
+                            <td><strong>{{ site.site_id }}</strong></td>
+                            <td>{{ "%.4f"|format(site.latitude) }}</td>
+                            <td>{{ "%.4f"|format(site.longitude) }}</td>
+                            <td>{{ "%.2f"|format(site.water_depth_m) }}</td>
+                            <td>{{ "%.2f"|format(site.distance_from_shore_km) }}</td>
+                            <td>{{ "%.2f"|format(site.avg_current_speed_m_s) }}</td>
+                            <td>{{ "%.1f"|format(site.water_temp_c) }}</td>
+                            <td>{{ "%.2f"|format(site.salinity_psu) }}</td>
+                            <td><span class="badge badge-info">{{ site.regulatory_zone }}</span></td>
+                            <td><span class="badge badge-success">{{ site.cage_count }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

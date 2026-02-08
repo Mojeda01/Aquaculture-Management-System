@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Quality - Aquaculture App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Aquaculture Management System</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
+            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
+            <li><a href="/species" class="btn btn-outline">Species</a></li>
+            <li><a href="/water-quality" class="btn btn-primary">Water Quality</a></li>
+            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
+             <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- Summary Cards -->
+        <div class="grid">
+            <div class="card">
+                <h2>Avg Temperature</h2>
+                <div class="stat-number">{{ "%.1f"|format(avg_temp) }}°C</div>
+                <p class="text-light">Water temperature</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Salinity</h2>
+                <div class="stat-number">{{ "%.2f"|format(avg_salinity) }}</div>
+                <p class="text-light">PSU (Practical Salinity Unit)</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Dissolved O₂</h2>
+                <div class="stat-number">{{ "%.2f"|format(avg_oxygen) }}</div>
+                <p class="text-light">mg/L</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Turbidity</h2>
+                <div class="stat-number">{{ "%.2f"|format(avg_turbidity) }}</div>
+                <p class="text-light">NTU</p>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Temperature and Salinity -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Temperature Distribution</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="temperatureChart"
+                            data-temps="{{ temperature_data }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Salinity Levels</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="salinityChart"
+                            data-salinity="{{ salinity_data }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Dissolved Oxygen and pH -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Dissolved Oxygen Levels</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="oxygenChart"
+                            data-oxygen="{{ oxygen_data }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Water Quality Parameters</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="parametersRadarChart"
+                            data-temp="{{ avg_temp }}"
+                            data-salinity="{{ avg_salinity }}"
+                            data-oxygen="{{ avg_oxygen }}"
+                            data-ammonia="{{ avg_ammonia }}"
+                            data-nitrate="{{ avg_nitrate }}"
+                            data-turbidity="{{ avg_turbidity }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 3: Nutrients -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Ammonia & Nitrate Levels</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="nutrientsChart"
+                            data-ammonia="{{ ammonia_data }}"
+                            data-nitrate="{{ nitrate_data }}"
+                            data-sites="{{ site_ids }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Turbidity & Chlorophyll</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="clarityChart"
+                            data-turbidity="{{ turbidity_data }}"
+                            data-chlorophyll="{{ chlorophyll_data }}"
+                            data-sites="{{ site_ids }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Water Quality Status by Zone -->
+        <div class="card">
+            <h2>Water Quality Status by Regulatory Zone</h2>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="zoneQualityChart"
+                        data-zones="{{ zone_labels }}"
+                        data-temp="{{ zone_temps }}"
+                        data-oxygen="{{ zone_oxygen }}"
+                        data-salinity="{{ zone_salinity }}"></canvas>
+            </div>
+        </div>
+
+        <!-- Detailed Water Quality Table -->
+        <div class="card">
+            <h2>Water Quality Monitoring Data</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Site ID</th>
+                            <th>Temperature (°C)</th>
+                            <th>Salinity (PSU)</th>
+                            <th>Dissolved O₂ (mg/L)</th>
+                            <th>Ammonia (mg/L)</th>
+                            <th>Nitrate (mg/L)</th>
+                            <th>Turbidity (NTU)</th>
+                            <th>Chlorophyll Index</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in water_quality_data %}
+                        <tr>
+                            <td><strong>{{ record.site_id }}</strong></td>
+                            <td>{{ "%.2f"|format(record.avg_temp) }}</td>
+                            <td>{{ "%.2f"|format(record.avg_salinity) }}</td>
+                            <td>
+                                {% if record.avg_oxygen > 0 %}
+                                    <span style="color: var(--success-green);">{{ "%.2f"|format(record.avg_oxygen) }}</span>
+                                {% else %}
+                                    <span style="color: var(--error-red);">{{ "%.2f"|format(record.avg_oxygen) }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ "%.2f"|format(record.avg_ammonia) }}</td>
+                            <td>{{ "%.2f"|format(record.avg_nitrate) }}</td>
+                            <td>{{ "%.2f"|format(record.avg_turbidity) }}</td>
+                            <td>{{ "%.2f"|format(record.avg_chlorophyll) }}</td>
+                            <td>
+                                {% if record.quality_score > 0.1 %}
+                                    <span class="badge badge-success">Excellent</span>
+                                {% elif record.quality_score > -0.1 %}
+                                    <span class="badge badge-warning">Good</span>
+                                {% else %}
+                                    <span class="badge badge-error">Poor</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Water Quality Alerts -->
+        <div class="card">
+            <h2>Water Quality Alerts</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                {% if low_oxygen_count > 0 %}
+                <div class="alert alert-warning">
+                    <strong>⚠️ Low Oxygen Alert:</strong> {{ low_oxygen_count }} sites have below-average dissolved oxygen levels.
+                </div>
+                {% endif %}
+                
+                {% if high_ammonia_count > 0 %}
+                <div class="alert alert-error">
+                    <strong>🚨 High Ammonia Alert:</strong> {{ high_ammonia_count }} sites show elevated ammonia levels.
+                </div>
+                {% endif %}
+                
+                {% if optimal_count > 0 %}
+                <div class="alert alert-success">
+                    <strong>✓ Optimal Conditions:</strong> {{ optimal_count }} sites maintain excellent water quality.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/water-quality-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquaculture App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Aquaculture Management System</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
+            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
+            <li><a href="/species" class="btn btn-outline">Species</a></li>
+            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
+            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
+            <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- Dashboard Summary Cards -->
+        <div class="grid">
+            <div class="card">
+                <h2>Total Sites</h2>
+                <div class="stat-number">{{ stats.total_sites }}</div>
+                <p class="text-light">Active monitoring locations</p>
+            </div>
+            
+            <div class="card">
+                <h2>Active Cages</h2>
+                <div class="stat-number">{{ stats.total_cages }}</div>
+                <p class="text-light">Currently in operation</p>
+            </div>
+            
+            <div class="card">
+                <h2>Species</h2>
+                <div class="stat-number">{{ stats.species_count }}</div>
+                <p class="text-light">Different species monitored</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Survival Rate</h2>
+                <div class="stat-number">{{ "%.1f"|format(stats.avg_survival) }}%</div>
+                <p class="text-light">Across all sites</p>
+            </div>
+        </div>
+
+        <!-- Recent Data Table -->
+        <div class="card">
+            <h2>Recent Site Data</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Site ID</th>
+                            <th>Cage ID</th>
+                            <th>Species</th>
+                            <th>Age (days)</th>
+                            <th>Current Weight (g)</th>
+                            <th>Survival Rate</th>
+                            <th>Disease Status</th>
+                            <th>Profit Margin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in recent_data %}
+                        <tr>
+                            <td>{{ record.site_id }}</td>
+                            <td>{{ record.cage_id }}</td>
+                            <td><span class="badge badge-info">{{ record.species }}</span></td>
+                            <td>{{ record.age_days }}</td>
+                            <td>{{ "%.2f"|format(record.current_weight_g) }}</td>
+                            <td>{{ "%.1f"|format(record.survival_rate_pct) }}%</td>
+                            <td>
+                                {% if record.disease_status == 'A' %}
+                                    <span class="badge badge-success">A</span>
+                                {% elif record.disease_status == 'B' %}
+                                    <span class="badge badge-warning">B</span>
+                                {% else %}
+                                    <span class="badge badge-error">C</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.profit_margin > 0 %}
+                                    <span style="color: var(--success-green);">{{ "%.2f"|format(record.profit_margin) }}</span>
+                                {% else %}
+                                    <span style="color: var(--error-red);">{{ "%.2f"|format(record.profit_margin) }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

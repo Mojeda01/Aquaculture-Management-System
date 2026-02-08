@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Aquaculture App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Aquaculture Management System</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
+            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
+            <li><a href="/species" class="btn btn-outline">Species</a></li>
+            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
+            <li><a href="/analytics" class="btn btn-primary">Analytics</a></li>
+             <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- KPI Summary Cards -->
+        <div class="grid">
+            <div class="card">
+                <h2>Total Revenue</h2>
+                <div class="stat-number">{{ "%.2f"|format(total_revenue) }}</div>
+                <p class="text-light">Across all operations</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Profit Margin</h2>
+                <div class="stat-number">{{ "%.2f"|format(avg_profit_margin) }}%</div>
+                <p class="text-light">Overall profitability</p>
+            </div>
+            
+            <div class="card">
+                <h2>Total Harvest</h2>
+                <div class="stat-number">{{ "%.0f"|format(total_harvest) }}</div>
+                <p class="text-light">kg harvested</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Market Price</h2>
+                <div class="stat-number">${{ "%.2f"|format(avg_market_price) }}</div>
+                <p class="text-light">per kg</p>
+            </div>
+        </div>
+
+        <!-- Financial Performance Charts -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Revenue vs Cost Analysis</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="revenueCostChart"
+                            data-sites="{{ site_labels }}"
+                            data-revenue="{{ revenue_data }}"
+                            data-cost="{{ cost_data }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Profit Margin Distribution</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="profitDistributionChart"
+                            data-margins="{{ profit_margins }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Harvest Weight by Species</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="harvestBySpeciesChart"
+                            data-species="{{ species_labels }}"
+                            data-harvest="{{ harvest_by_species }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Market Price Trends</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="marketPriceChart"
+                            data-sites="{{ price_site_labels }}"
+                            data-prices="{{ market_prices }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operational Efficiency -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Stocking Density vs Profit</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="densityProfitChart"
+                            data-density="{{ stocking_density }}"
+                            data-profit="{{ density_profit }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Labor & Energy Efficiency</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="efficiencyChart"
+                            data-labor="{{ labor_hours }}"
+                            data-energy="{{ energy_kwh }}"
+                            data-sites="{{ efficiency_sites }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mortality & Treatment Analysis -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Mortality vs Treatment Events</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="mortalityTreatmentChart"
+                            data-species="{{ species_labels }}"
+                            data-mortality="{{ avg_mortality }}"
+                            data-treatment="{{ avg_treatment }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Cage Volume Utilization</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="cageUtilizationChart"
+                            data-volumes="{{ cage_volumes }}"
+                            data-labels="{{ volume_labels }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correlation Heatmap -->
+        <div class="card">
+            <h2>Performance Correlation Matrix</h2>
+            <div class="chart-container" style="height: 450px;">
+                <canvas id="correlationHeatmap"
+                        data-correlations="{{ correlation_data }}"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Performers Table -->
+        <div class="card">
+            <h2>Top Performing Sites</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Site ID</th>
+                            <th>Species</th>
+                            <th>Revenue</th>
+                            <th>Cost</th>
+                            <th>Profit Margin</th>
+                            <th>Harvest (kg)</th>
+                            <th>Growth Rate</th>
+                            <th>Survival Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in top_performers %}
+                        <tr>
+                            <td><strong>{{ loop.index }}</strong></td>
+                            <td>{{ site.site_id }}</td>
+                            <td><span class="badge badge-info">{{ site.species }}</span></td>
+                            <td>${{ "%.2f"|format(site.revenue) }}</td>
+                            <td>${{ "%.2f"|format(site.cost) }}</td>
+                            <td>
+                                {% if site.profit_margin > 0 %}
+                                    <span style="color: var(--success-green);">{{ "%.2f"|format(site.profit_margin) }}%</span>
+                                {% else %}
+                                    <span style="color: var(--error-red);">{{ "%.2f"|format(site.profit_margin) }}%</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ "%.2f"|format(site.harvest_weight) }}</td>
+                            <td>{{ "%.3f"|format(site.growth_rate) }}</td>
+                            <td>{{ "%.1f"|format(site.survival_rate) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="card">
+            <h2>Key Insights & Recommendations</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                {% if best_species %}
+                <div class="alert alert-success">
+                    <strong>🏆 Top Performing Species:</strong> Species {{ best_species }} shows the highest profit margins with an average of {{ "%.2f"|format(best_species_profit) }}%.
+                </div>
+                {% endif %}
+                
+                {% if improvement_sites > 0 %}
+                <div class="alert alert-warning">
+                    <strong>⚠️ Improvement Needed:</strong> {{ improvement_sites }} sites are operating below average profit margins. Review operational efficiency.
+                </div>
+                {% endif %}
+                
+                {% if high_performers > 0 %}
+                <div class="alert alert-info">
+                    <strong>💡 Best Practices:</strong> {{ high_performers }} sites consistently exceed targets. Consider replicating their practices.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/analytics-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Species - Aquaculture App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Aquaculture Management System</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
+            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
+            <li><a href="/species" class="btn btn-primary">Species</a></li>
+            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
+            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
+             <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- Summary Cards -->
+        <div class="grid">
+            <div class="card">
+                <h2>Total Species</h2>
+                <div class="stat-number">{{ species_data|length }}</div>
+                <p class="text-light">Different species monitored</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Growth Rate</h2>
+                <div class="stat-number">{{ "%.3f"|format(avg_growth_rate) }}</div>
+                <p class="text-light">g/day across all species</p>
+            </div>
+            
+            <div class="card">
+                <h2>Avg Survival Rate</h2>
+                <div class="stat-number">{{ "%.1f"|format(avg_survival_rate) }}%</div>
+                <p class="text-light">Across all species</p>
+            </div>
+            
+            <div class="card">
+                <h2>Best FCR</h2>
+                <div class="stat-number">{{ "%.2f"|format(best_fcr) }}</div>
+                <p class="text-light">Feed Conversion Ratio</p>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Growth Rate by Species</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="growthRateChart"
+                            data-species="{{ species_labels }}"
+                            data-growth-rates="{{ growth_rates }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Survival Rate by Species</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="survivalRateChart"
+                            data-species="{{ species_labels }}"
+                            data-survival-rates="{{ survival_rates }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Feed Conversion Ratio</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="fcrChart"
+                            data-species="{{ species_labels }}"
+                            data-fcr="{{ fcr_values }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Average Weight by Species</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="weightChart"
+                            data-species="{{ species_labels }}"
+                            data-weights="{{ avg_weights }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disease Status Distribution -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2>Disease Status Distribution</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="diseaseChart"
+                            data-labels="{{ disease_labels }}"
+                            data-counts="{{ disease_counts }}"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Age Distribution</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="ageDistributionChart"
+                            data-species="{{ species_labels }}"
+                            data-ages="{{ avg_ages }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Species Table -->
+        <div class="card">
+            <h2>Species Performance Metrics</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Species</th>
+                            <th>Avg Weight (g)</th>
+                            <th>Growth Rate (g/day)</th>
+                            <th>Survival Rate (%)</th>
+                            <th>FCR</th>
+                            <th>Avg Age (days)</th>
+                            <th>Total Records</th>
+                            <th>Health Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for species in species_data %}
+                        <tr>
+                            <td><strong><span class="badge badge-info">Species {{ species.species }}</span></strong></td>
+                            <td>{{ "%.2f"|format(species.avg_weight) }}</td>
+                            <td>{{ "%.3f"|format(species.avg_growth_rate) }}</td>
+                            <td>
+                                {% if species.avg_survival_rate > 0 %}
+                                    <span style="color: var(--success-green);">{{ "%.1f"|format(species.avg_survival_rate) }}%</span>
+                                {% else %}
+                                    <span style="color: var(--error-red);">{{ "%.1f"|format(species.avg_survival_rate) }}%</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ "%.2f"|format(species.avg_fcr) }}</td>
+                            <td>{{ "%.0f"|format(species.avg_age) }}</td>
+                            <td>{{ species.count }}</td>
+                            <td>
+                                {% if species.health_score > 0.05 %}
+                                    <span class="badge badge-success">Good</span>
+                                {% elif species.health_score > -0.05 %}
+                                    <span class="badge badge-warning">Fair</span>
+                                {% else %}
+                                    <span class="badge badge-error">Poor</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/species-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
