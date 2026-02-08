@@ -1,106 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
+    <!-- Meta Tags -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aquaculture App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Enterprise aquaculture management dashboard with real-time monitoring, analytics, and performance metrics for aquaculture operations.">
+    <meta name="keywords" content="aquaculture, dashboard, analytics, monitoring, fish farming, management system">
+    <meta name="author" content="Aquaculture Management System">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Dashboard | Aquaculture Management System">
+    <meta property="og:description" content="Real-time aquaculture operations dashboard with comprehensive monitoring and analytics.">
+    <meta property="og:site_name" content="Aquaculture Management System">
+    
+    <!-- Theme & App -->
+    <meta name="theme-color" content="#1E3A8A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Aqua Dashboard">
+    
+    <!-- Title -->
+    <title>Dashboard | Aquaculture Management System</title>
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Performance: Preload Critical Resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/main.js') }}" as="script">
 </head>
-<body>
-    <header>
-        <h1>Aquaculture Management System</h1>
-    </header>
-    
-    <nav>
-        <ul>
-            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
-            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
-            <li><a href="/species" class="btn btn-outline">Species</a></li>
-            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
-            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
-            <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
-            <li><a href="/risk-analytics" class="btn btn-outline">Risk Analytics</a></li>
-        </ul>
-    </nav>
-    
-    <main>
-        <!-- Dashboard Summary Cards -->
-        <div class="grid">
-            <div class="card">
-                <h2>Total Sites</h2>
-                <div class="stat-number">{{ stats.total_sites }}</div>
-                <p class="text-light">Active monitoring locations</p>
-            </div>
-            
-            <div class="card">
-                <h2>Active Cages</h2>
-                <div class="stat-number">{{ stats.total_cages }}</div>
-                <p class="text-light">Currently in operation</p>
-            </div>
-            
-            <div class="card">
-                <h2>Species</h2>
-                <div class="stat-number">{{ stats.species_count }}</div>
-                <p class="text-light">Different species monitored</p>
-            </div>
-            
-            <div class="card">
-                <h2>Avg Survival Rate</h2>
-                <div class="stat-number">{{ "%.1f"|format(stats.avg_survival) }}%</div>
-                <p class="text-light">Across all sites</p>
+<body class="dashboard-page">
+    <!-- Skip to Main Content (Accessibility) -->
+    <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">
+        Skip to main content
+    </a>
+
+    <!-- Application Header -->
+    <header role="banner" class="app-header">
+        <div class="header-container">
+            <div class="header-brand">
+                <div class="brand-title">
+                    <h1 class="brand-name">Aquaculture Management System</h1>
+                    <p class="brand-subtitle">Enterprise Analytics Platform</p>
+                </div>
             </div>
         </div>
+    </header>
+    
+    <!-- Primary Navigation -->
+    <nav role="navigation" aria-label="Primary navigation" class="primary-nav">
+        <div class="nav-container">
+            <ul class="nav-menu" role="menubar">
+                <li role="none">
+                    <a href="/" 
+                       role="menuitem"
+                       class="nav-link active"
+                       aria-current="page">
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="/sites" 
+                       role="menuitem"
+                       class="nav-link">
+                        <span class="nav-text">Sites</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="/species" 
+                       role="menuitem"
+                       class="nav-link">
+                        <span class="nav-text">Species</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="/water-quality" 
+                       role="menuitem"
+                       class="nav-link">
+                        <span class="nav-text">Water Quality</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="/analytics" 
+                       role="menuitem"
+                       class="nav-link">
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="/model-results" 
+                       role="menuitem"
+                       class="nav-link">
+                        <span class="nav-text">Predictive Models</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="/risk-analytics" 
+                       role="menuitem"
+                       class="nav-link">
+                        <span class="nav-text">Risk Analytics</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb" role="list">
+                <li class="breadcrumb-item">
+                    <a href="/">Home</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span>Dashboard</span>
+                </li>
+            </ol>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <main id="main-content" role="main" class="main-content" tabindex="-1">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="page-header-content">
+                    <h2 class="page-title">Operations Dashboard</h2>
+                    <p class="page-description">Real-time monitoring and key performance indicators across all aquaculture facilities</p>
+                </div>
+            </header>
 
-        <!-- Recent Data Table -->
-        <div class="card">
-            <h2>Recent Site Data</h2>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Site ID</th>
-                            <th>Cage ID</th>
-                            <th>Species</th>
-                            <th>Age (days)</th>
-                            <th>Current Weight (g)</th>
-                            <th>Survival Rate</th>
-                            <th>Disease Status</th>
-                            <th>Profit Margin</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in recent_data %}
-                        <tr>
-                            <td>{{ record.site_id }}</td>
-                            <td>{{ record.cage_id }}</td>
-                            <td><span class="badge badge-info">{{ record.species }}</span></td>
-                            <td>{{ record.age_days }}</td>
-                            <td>{{ "%.2f"|format(record.current_weight_g) }}</td>
-                            <td>{{ "%.1f"|format(record.survival_rate_pct) }}%</td>
-                            <td>
-                                {% if record.disease_status == 'A' %}
-                                    <span class="badge badge-success">A</span>
-                                {% elif record.disease_status == 'B' %}
-                                    <span class="badge badge-warning">B</span>
-                                {% else %}
-                                    <span class="badge badge-error">C</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if record.profit_margin > 0 %}
-                                    <span style="color: var(--success-green);">{{ "%.2f"|format(record.profit_margin) }}</span>
-                                {% else %}
-                                    <span style="color: var(--error-red);">{{ "%.2f"|format(record.profit_margin) }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <!-- Key Performance Indicators -->
+            <section aria-labelledby="kpi-heading" class="kpi-section">
+                <h3 id="kpi-heading" class="visually-hidden">Key Performance Indicators</h3>
+                
+                <div class="kpi-grid">
+                    <article class="kpi-card" role="group" aria-labelledby="kpi-sites-title">
+                        <div class="kpi-header">
+                            <h4 id="kpi-sites-title" class="kpi-title">Total Sites</h4>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-value" aria-label="{{ stats.total_sites }} total sites">
+                                <span class="stat-number">{{ stats.total_sites }}</span>
+                            </p>
+                            <p class="kpi-description">Active monitoring locations</p>
+                        </div>
+                    </article>
+                    
+                    <article class="kpi-card" role="group" aria-labelledby="kpi-cages-title">
+                        <div class="kpi-header">
+                            <h4 id="kpi-cages-title" class="kpi-title">Active Cages</h4>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-value" aria-label="{{ stats.total_cages }} active cages">
+                                <span class="stat-number">{{ stats.total_cages }}</span>
+                            </p>
+                            <p class="kpi-description">Currently in operation</p>
+                        </div>
+                    </article>
+                    
+                    <article class="kpi-card" role="group" aria-labelledby="kpi-species-title">
+                        <div class="kpi-header">
+                            <h4 id="kpi-species-title" class="kpi-title">Species Monitored</h4>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-value" aria-label="{{ stats.species_count }} species monitored">
+                                <span class="stat-number">{{ stats.species_count }}</span>
+                            </p>
+                            <p class="kpi-description">Different species tracked</p>
+                        </div>
+                    </article>
+                    
+                    <article class="kpi-card" role="group" aria-labelledby="kpi-survival-title">
+                        <div class="kpi-header">
+                            <h4 id="kpi-survival-title" class="kpi-title">Average Survival Rate</h4>
+                        </div>
+                        <div class="kpi-body">
+                            <p class="kpi-value" aria-label="{{ '%.1f'|format(stats.avg_survival) }} percent survival rate">
+                                <span class="stat-number">{{ "%.1f"|format(stats.avg_survival) }}%</span>
+                            </p>
+                            <p class="kpi-description">Across all active sites</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Recent Site Data -->
+            <section aria-labelledby="recent-data-heading" class="data-section">
+                <header class="section-header">
+                    <h3 id="recent-data-heading" class="section-title">Recent Site Activity</h3>
+                </header>
+                
+                <div class="table-container">
+                    <div class="table-wrapper" role="region" aria-labelledby="recent-data-heading" tabindex="0">
+                        <table class="data-table">
+                            <caption class="visually-hidden">Recent aquaculture site monitoring data showing site ID, cage ID, species, age, weight, survival rate, disease status, and profit margin</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Site ID</th>
+                                    <th scope="col">Cage ID</th>
+                                    <th scope="col">Species</th>
+                                    <th scope="col">Age (days)</th>
+                                    <th scope="col">Current Weight (g)</th>
+                                    <th scope="col">Survival Rate</th>
+                                    <th scope="col">Disease Status</th>
+                                    <th scope="col">Profit Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in recent_data %}
+                                <tr>
+                                    <td>
+                                        <strong class="table-primary">{{ record.site_id }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="table-secondary">{{ record.cage_id }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info" role="status">{{ record.species }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="table-numeric">{{ record.age_days }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="table-numeric">{{ "%.2f"|format(record.current_weight_g) }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="metric-cell">
+                                            <span class="metric-value">{{ "%.1f"|format(record.survival_rate_pct) }}%</span>
+                                            <div class="metric-bar" role="presentation">
+                                                <div class="metric-bar-fill" style="width: {{ record.survival_rate_pct }}%;" aria-hidden="true"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if record.disease_status == 'A' %}
+                                            <span class="badge badge-success" role="status" aria-label="Disease status A: Healthy">A</span>
+                                        {% elif record.disease_status == 'B' %}
+                                            <span class="badge badge-warning" role="status" aria-label="Disease status B: Moderate">B</span>
+                                        {% else %}
+                                            <span class="badge badge-error" role="status" aria-label="Disease status C: At risk">C</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.profit_margin > 0 %}
+                                            <span class="metric-positive" aria-label="Positive profit margin: {{ '%.2f'|format(record.profit_margin) }}">
+                                                {{ "%.2f"|format(record.profit_margin) }}
+                                            </span>
+                                        {% else %}
+                                            <span class="metric-negative" aria-label="Negative profit margin: {{ '%.2f'|format(record.profit_margin) }}">
+                                                {{ "%.2f"|format(record.profit_margin) }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <nav class="table-pagination" aria-label="Data table pagination">
+                        <div class="pagination-info">
+                            <span>Showing <strong>1-10</strong> of <strong>{{ recent_data|length }}</strong> records</span>
+                        </div>
+                    </nav>
+                </div>
+            </section>
         </div>
     </main>
     
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Application Footer -->
+    <footer role="contentinfo" class="app-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3 class="footer-title">Aquaculture Management System</h3>
+                <p class="footer-text">Enterprise-grade analytics and risk management for aquaculture operations worldwide.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Platform</h4>
+                <ul class="footer-links">
+                    <li><a href="/analytics">Financial Analytics</a></li>
+                    <li><a href="/risk-analytics">Risk Assessment</a></li>
+                    <li><a href="/model-results">Predictive Models</a></li>
+                    <li><a href="/water-quality">Environmental Monitoring</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-subtitle">System Status</h4>
+                <ul class="footer-info">
+                    <li><strong>Version:</strong> 1.0.0</li>
+                    <li><strong>Last Updated:</strong> <time datetime="2026-02-08">February 8, 2026</time></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p class="footer-copyright">
+                &copy; <time datetime="2026">2026</time> Aquaculture Management System. All rights reserved.
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </body>
 </html>
