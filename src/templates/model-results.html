@@ -1,224 +1,290 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Model Results - Aquaculture App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Predictive regression models analyzing factors affecting harvest weight with OLS and GLSAR analysis.">
+    <meta name="keywords" content="predictive models, regression analysis, OLS, GLSAR, statistical modeling, aquaculture">
+    <title>Predictive Models | Aquaculture Management System</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
 </head>
-<body>
-    <header>
-        <h1>Aquaculture Management System</h1>
+<body class="model-results-page">
+    <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
+
+    <header role="banner" class="app-header">
+        <div class="header-container">
+            <div class="header-brand">
+                <div class="brand-title">
+                    <h1 class="brand-name">Aquaculture Management System</h1>
+                    <p class="brand-subtitle">Enterprise Analytics Platform</p>
+                </div>
+            </div>
+        </div>
     </header>
     
-    <nav>
-        <ul>
-            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
-            <li><a href="/sites" class="btn btn-outline">Sites</a></li>
-            <li><a href="/species" class="btn btn-outline">Species</a></li>
-            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
-            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
-            <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
-            <li><a href="/risk-analytics" class="btn btn-outline">Risk Analytics</a></li> 
-        </ul>
+    <nav role="navigation" aria-label="Primary navigation" class="primary-nav">
+        <div class="nav-container">
+            <ul class="nav-menu" role="menubar">
+                <li role="none"><a href="/" role="menuitem" class="nav-link"><span class="nav-text">Dashboard</span></a></li>
+                <li role="none"><a href="/sites" role="menuitem" class="nav-link"><span class="nav-text">Sites</span></a></li>
+                <li role="none"><a href="/species" role="menuitem" class="nav-link"><span class="nav-text">Species</span></a></li>
+                <li role="none"><a href="/water-quality" role="menuitem" class="nav-link"><span class="nav-text">Water Quality</span></a></li>
+                <li role="none"><a href="/analytics" role="menuitem" class="nav-link"><span class="nav-text">Analytics</span></a></li>
+                <li role="none"><a href="/model-results" role="menuitem" class="nav-link active" aria-current="page"><span class="nav-text">Predictive Models</span></a></li>
+                <li role="none"><a href="/risk-analytics" role="menuitem" class="nav-link"><span class="nav-text">Risk Analytics</span></a></li>
+            </ul>
+        </div>
     </nav>
     
-    <main>
-        <div class="card">
-            <h2>Regression Model Results</h2>
-            <p class="text-light">Predictive models analyzing factors affecting harvest weight in aquaculture operations</p>
+    <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb" role="list">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><span>Predictive Models</span></li>
+            </ol>
         </div>
+    </nav>
+    
+    <main id="main-content" role="main" class="main-content" tabindex="-1">
+        <div class="content-wrapper">
+            <header class="page-header">
+                <div class="page-header-content">
+                    <h2 class="page-title">Regression Model Results</h2>
+                    <p class="page-description">Predictive models analyzing factors affecting harvest weight in aquaculture operations</p>
+                </div>
+            </header>
 
-        <!-- Model Comparison Cards -->
-        <div class="grid">
-            <div class="card">
-                <h2>OLS Regression</h2>
-                <div class="model-metric">
-                    <span class="metric-label">R²:</span>
-                    <span class="metric-value">{{ "%.4f"|format(ols_results.r_squared) }}</span>
-                </div>
-                <div class="model-metric">
-                    <span class="metric-label">Adj. R²:</span>
-                    <span class="metric-value">{{ "%.4f"|format(ols_results.adj_r_squared) }}</span>
-                </div>
-                <div class="model-metric">
-                    <span class="metric-label">AIC:</span>
-                    <span class="metric-value">{{ "%.2f"|format(ols_results.aic) }}</span>
-                </div>
-                <div class="model-metric">
-                    <span class="metric-label">F-statistic:</span>
-                    <span class="metric-value">{{ "%.2f"|format(ols_results.f_statistic) }}</span>
-                </div>
-                <p class="text-light mt-2">Observations: {{ ols_results.n_observations }}</p>
-            </div>
-            
-            <div class="card">
-                <h2>GLSAR Regression</h2>
-                <div class="model-metric">
-                    <span class="metric-label">R²:</span>
-                    <span class="metric-value">{{ "%.4f"|format(glsar_results.rsquared) }}</span>
-                </div>
-                <div class="model-metric">
-                    <span class="metric-label">AR Order:</span>
-                    <span class="metric-value">{{ glsar_results.ar_order }}</span>
-                </div>
-                <div class="model-metric">
-                    <span class="metric-label">AIC:</span>
-                    <span class="metric-value">{{ "%.2f"|format(glsar_results.aic) }}</span>
-                </div>
-                <div class="model-metric">
-                    <span class="metric-label">BIC:</span>
-                    <span class="metric-value">{{ "%.2f"|format(glsar_results.bic) }}</span>
-                </div>
-                <p class="text-light mt-2">Observations: {{ glsar_results.n_observations }}</p>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
-            <div class="card">
-                <h2>Top Significant Predictors (OLS)</h2>
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="olsCoefficientsChart"
-                            data-variables="{{ ols_top_vars }}"
-                            data-coefficients="{{ ols_top_coefs }}"
-                            data-pvalues="{{ ols_top_pvals }}"></canvas>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2>Model Comparison: Fitted vs Actual</h2>
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="fittedActualChart"
-                            data-ols-fitted="{{ ols_fitted }}"
-                            data-ols-actual="{{ ols_actual }}"
-                            data-glsar-fitted="{{ glsar_fitted }}"
-                            data-glsar-actual="{{ glsar_actual }}"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Residual Plots -->
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
-            <div class="card">
-                <h2>OLS Residuals Distribution</h2>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="olsResidualsChart"
-                            data-residuals="{{ ols_residuals }}"></canvas>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2>GLSAR Residuals Distribution</h2>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="glsarResidualsChart"
-                            data-residuals="{{ glsar_residuals }}"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coefficient Comparison -->
-        <div class="card">
-            <h2>All Coefficients Comparison (OLS vs GLSAR)</h2>
-            <div class="chart-container" style="height: 500px;">
-                <canvas id="coefficientComparisonChart"
-                        data-variables="{{ all_vars }}"
-                        data-ols-coefs="{{ all_ols_coefs }}"
-                        data-glsar-coefs="{{ all_glsar_coefs }}"></canvas>
-            </div>
-        </div>
-
-        <!-- OLS Coefficients Table -->
-        <div class="card">
-            <h2>OLS Regression Coefficients</h2>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Variable</th>
-                            <th>Coefficient</th>
-                            <th>P-value</th>
-                            <th>Significance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for var, coef in ols_coefficients.items() %}
-                        <tr>
-                            <td><strong>{{ var }}</strong></td>
-                            <td>{{ "%.6f"|format(coef) }}</td>
-                            <td>{{ "%.4f"|format(ols_pvalues[var]) }}</td>
-                            <td>
-                                {% if ols_pvalues[var] < 0.001 %}
-                                    <span class="badge badge-success">***</span>
-                                {% elif ols_pvalues[var] < 0.01 %}
-                                    <span class="badge badge-success">**</span>
-                                {% elif ols_pvalues[var] < 0.05 %}
-                                    <span class="badge badge-warning">*</span>
-                                {% else %}
-                                    <span class="badge" style="background: rgba(200, 200, 200, 0.3);">NS</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <p class="text-light mt-3">*** p < 0.001, ** p < 0.01, * p < 0.05, NS = Not Significant</p>
-        </div>
-
-        <!-- GLSAR Coefficients Table -->
-        <div class="card">
-            <h2>GLSAR Regression Coefficients</h2>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Variable</th>
-                            <th>Coefficient</th>
-                            <th>Difference from OLS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for var, coef in glsar_coefficients.items() %}
-                        <tr>
-                            <td><strong>{{ var }}</strong></td>
-                            <td>{{ "%.6f"|format(coef) }}</td>
-                            <td>
-                                {% set diff = coef - ols_coefficients[var] %}
-                                {% if diff > 0 %}
-                                    <span style="color: var(--success-green);">+{{ "%.6f"|format(diff) }}</span>
-                                {% else %}
-                                    <span style="color: var(--error-red);">{{ "%.6f"|format(diff) }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Key Insights -->
-        <div class="card">
-            <h2>Model Insights</h2>
-            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-                <div class="alert alert-info">
-                    <strong>Model Fit:</strong> Both models explain approximately {{ "%.1f"|format(ols_results.r_squared * 100) }}% of the variance in harvest weight.
-                </div>
+            <section aria-labelledby="model-comparison-heading" class="kpi-section">
+                <h3 id="model-comparison-heading" class="section-title">Model Comparison</h3>
                 
-                <div class="alert alert-success">
-                    <strong>Significant Factors:</strong> {{ significant_count }} variables show significant effects (p < 0.05) on harvest outcomes.
+                <div class="grid">
+                    <article class="card">
+                        <h4>OLS Regression</h4>
+                        <div class="model-metric">
+                            <span class="metric-label">R²:</span>
+                            <span class="metric-value">{{ "%.4f"|format(ols_results.r_squared) }}</span>
+                        </div>
+                        <div class="model-metric">
+                            <span class="metric-label">Adj. R²:</span>
+                            <span class="metric-value">{{ "%.4f"|format(ols_results.adj_r_squared) }}</span>
+                        </div>
+                        <div class="model-metric">
+                            <span class="metric-label">AIC:</span>
+                            <span class="metric-value">{{ "%.2f"|format(ols_results.aic) }}</span>
+                        </div>
+                        <div class="model-metric">
+                            <span class="metric-label">F-statistic:</span>
+                            <span class="metric-value">{{ "%.2f"|format(ols_results.f_statistic) }}</span>
+                        </div>
+                        <p class="kpi-description">Observations: {{ ols_results.n_observations }}</p>
+                    </article>
+                    
+                    <article class="card">
+                        <h4>GLSAR Regression</h4>
+                        <div class="model-metric">
+                            <span class="metric-label">R²:</span>
+                            <span class="metric-value">{{ "%.4f"|format(glsar_results.rsquared) }}</span>
+                        </div>
+                        <div class="model-metric">
+                            <span class="metric-label">AR Order:</span>
+                            <span class="metric-value">{{ glsar_results.ar_order }}</span>
+                        </div>
+                        <div class="model-metric">
+                            <span class="metric-label">AIC:</span>
+                            <span class="metric-value">{{ "%.2f"|format(glsar_results.aic) }}</span>
+                        </div>
+                        <div class="model-metric">
+                            <span class="metric-label">BIC:</span>
+                            <span class="metric-value">{{ "%.2f"|format(glsar_results.bic) }}</span>
+                        </div>
+                        <p class="kpi-description">Observations: {{ glsar_results.n_observations }}</p>
+                    </article>
                 </div>
-                
-                <div class="alert alert-warning">
-                    <strong>Autocorrelation:</strong> GLSAR model (AR={{ glsar_results.ar_order }}) accounts for temporal dependencies in the data.
+            </section>
+
+            <section aria-labelledby="predictors-comparison-heading">
+                <h3 id="predictors-comparison-heading" class="section-title">Model Predictors and Fit</h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                    <div class="card">
+                        <h4>Top Significant Predictors (OLS)</h4>
+                        <div class="chart-container" style="height: 400px;">
+                            <canvas id="olsCoefficientsChart"
+                                    data-variables="{{ ols_top_vars }}"
+                                    data-coefficients="{{ ols_top_coefs }}"
+                                    data-pvalues="{{ ols_top_pvals }}"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Model Comparison: Fitted vs Actual</h4>
+                        <div class="chart-container" style="height: 400px;">
+                            <canvas id="fittedActualChart"
+                                    data-ols-fitted="{{ ols_fitted }}"
+                                    data-ols-actual="{{ ols_actual }}"
+                                    data-glsar-fitted="{{ glsar_fitted }}"
+                                    data-glsar-actual="{{ glsar_actual }}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="residuals-heading">
+                <h3 id="residuals-heading" class="section-title">Residual Analysis</h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                    <div class="card">
+                        <h4>OLS Residuals Distribution</h4>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="olsResidualsChart"
+                                    data-residuals="{{ ols_residuals }}"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>GLSAR Residuals Distribution</h4>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="glsarResidualsChart"
+                                    data-residuals="{{ glsar_residuals }}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="card">
+                <h3>All Coefficients Comparison (OLS vs GLSAR)</h3>
+                <div class="chart-container" style="height: 500px;">
+                    <canvas id="coefficientComparisonChart"
+                            data-variables="{{ all_vars }}"
+                            data-ols-coefs="{{ all_ols_coefs }}"
+                            data-glsar-coefs="{{ all_glsar_coefs }}"></canvas>
                 </div>
             </div>
+
+            <section aria-labelledby="ols-coefficients-heading">
+                <h3 id="ols-coefficients-heading" class="section-title">OLS Regression Coefficients</h3>
+                <div class="table-container">
+                    <div class="table-wrapper" role="region" aria-labelledby="ols-coefficients-heading" tabindex="0">
+                        <table class="data-table">
+                            <caption class="visually-hidden">OLS regression coefficients with p-values and statistical significance indicators</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Variable</th>
+                                    <th scope="col">Coefficient</th>
+                                    <th scope="col">P-value</th>
+                                    <th scope="col">Significance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for var, coef in ols_coefficients.items() %}
+                                <tr>
+                                    <td><strong>{{ var }}</strong></td>
+                                    <td class="table-numeric">{{ "%.6f"|format(coef) }}</td>
+                                    <td class="table-numeric">{{ "%.4f"|format(ols_pvalues[var]) }}</td>
+                                    <td>
+                                        {% if ols_pvalues[var] < 0.001 %}
+                                            <span class="badge badge-success">***</span>
+                                        {% elif ols_pvalues[var] < 0.01 %}
+                                            <span class="badge badge-success">**</span>
+                                        {% elif ols_pvalues[var] < 0.05 %}
+                                            <span class="badge badge-warning">*</span>
+                                        {% else %}
+                                            <span class="badge" style="background: rgba(200, 200, 200, 0.3);">NS</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="kpi-description">*** p < 0.001, ** p < 0.01, * p < 0.05, NS = Not Significant</p>
+                </div>
+            </section>
+
+            <section aria-labelledby="glsar-coefficients-heading">
+                <h3 id="glsar-coefficients-heading" class="section-title">GLSAR Regression Coefficients</h3>
+                <div class="table-container">
+                    <div class="table-wrapper" role="region" aria-labelledby="glsar-coefficients-heading" tabindex="0">
+                        <table class="data-table">
+                            <caption class="visually-hidden">GLSAR regression coefficients with comparison to OLS model showing differences</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Variable</th>
+                                    <th scope="col">Coefficient</th>
+                                    <th scope="col">Difference from OLS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for var, coef in glsar_coefficients.items() %}
+                                <tr>
+                                    <td><strong>{{ var }}</strong></td>
+                                    <td class="table-numeric">{{ "%.6f"|format(coef) }}</td>
+                                    <td>
+                                        {% set diff = coef - ols_coefficients[var] %}
+                                        {% if diff > 0 %}
+                                            <span class="metric-positive">+{{ "%.6f"|format(diff) }}</span>
+                                        {% else %}
+                                            <span class="metric-negative">{{ "%.6f"|format(diff) }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="model-insights-heading">
+                <h3 id="model-insights-heading" class="section-title">Model Insights</h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                    <div class="alert alert-info" role="alert">
+                        <strong>Model Fit:</strong> Both models explain approximately {{ "%.1f"|format(ols_results.r_squared * 100) }}% of the variance in harvest weight.
+                    </div>
+                    
+                    <div class="alert alert-success" role="alert">
+                        <strong>Significant Factors:</strong> {{ significant_count }} variables show significant effects (p < 0.05) on harvest outcomes.
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Autocorrelation:</strong> GLSAR model (AR={{ glsar_results.ar_order }}) accounts for temporal dependencies in the data.
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="{{ url_for('static', filename='js/model-charts.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <footer role="contentinfo" class="app-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3 class="footer-title">Aquaculture Management System</h3>
+                <p class="footer-text">Enterprise-grade analytics and risk management for aquaculture operations worldwide.</p>
+            </div>
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Platform</h4>
+                <ul class="footer-links">
+                    <li><a href="/analytics">Financial Analytics</a></li>
+                    <li><a href="/risk-analytics">Risk Assessment</a></li>
+                    <li><a href="/model-results">Predictive Models</a></li>
+                    <li><a href="/water-quality">Environmental Monitoring</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4 class="footer-subtitle">System Status</h4>
+                <ul class="footer-info">
+                    <li><strong>Version:</strong> 1.0.0</li>
+                    <li><strong>Last Updated:</strong> <time datetime="2026-02-08">February 8, 2026</time></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copyright">&copy; <time datetime="2026">2026</time> Aquaculture Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/model-charts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </body>
 </html>

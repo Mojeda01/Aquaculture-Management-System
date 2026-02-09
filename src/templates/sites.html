@@ -1,187 +1,251 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sites - Aquaculture App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Aquaculture site management with environmental monitoring, regulatory compliance, and operational metrics.">
+    <meta name="keywords" content="aquaculture sites, environmental monitoring, water quality, site management">
+    <title>Sites | Aquaculture Management System</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
 </head>
-<body>
-    <header>
-        <h1>Aquaculture Management System</h1>
+<body class="sites-page">
+    <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
+
+    <header role="banner" class="app-header">
+        <div class="header-container">
+            <div class="header-brand">
+                <div class="brand-title">
+                    <h1 class="brand-name">Aquaculture Management System</h1>
+                    <p class="brand-subtitle">Enterprise Analytics Platform</p>
+                </div>
+            </div>
+        </div>
     </header>
     
-    <nav>
-        <ul>
-            <li><a href="/" class="btn btn-outline">Dashboard</a></li>
-            <li><a href="/sites" class="btn btn-primary">Sites</a></li>
-            <li><a href="/species" class="btn btn-outline">Species</a></li>
-            <li><a href="/water-quality" class="btn btn-outline">Water Quality</a></li>
-            <li><a href="/analytics" class="btn btn-outline">Analytics</a></li>
-            <li><a href="/model-results" class="btn btn-outline">Predictive Models</a></li>
-            <li><a href="/risk-analytics" class="btn btn-outline">Risk Analytics</a></li>
-        </ul>
+    <nav role="navigation" aria-label="Primary navigation" class="primary-nav">
+        <div class="nav-container">
+            <ul class="nav-menu" role="menubar">
+                <li role="none"><a href="/" role="menuitem" class="nav-link"><span class="nav-text">Dashboard</span></a></li>
+                <li role="none"><a href="/sites" role="menuitem" class="nav-link active" aria-current="page"><span class="nav-text">Sites</span></a></li>
+                <li role="none"><a href="/species" role="menuitem" class="nav-link"><span class="nav-text">Species</span></a></li>
+                <li role="none"><a href="/water-quality" role="menuitem" class="nav-link"><span class="nav-text">Water Quality</span></a></li>
+                <li role="none"><a href="/analytics" role="menuitem" class="nav-link"><span class="nav-text">Analytics</span></a></li>
+                <li role="none"><a href="/model-results" role="menuitem" class="nav-link"><span class="nav-text">Predictive Models</span></a></li>
+                <li role="none"><a href="/risk-analytics" role="menuitem" class="nav-link"><span class="nav-text">Risk Analytics</span></a></li>
+            </ul>
+        </div>
     </nav>
     
-    <main>
-        <!-- Top Row: Pie Charts -->
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
-            <div class="card">
-                <h2>Sites by Regulatory Zone</h2>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="regulatoryZoneChart" 
-                            data-labels="{{ zone_labels }}"
-                            data-counts="{{ zone_counts }}"></canvas>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2>Species Distribution</h2>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="speciesChart"
-                            data-labels="{{ species_labels }}"
-                            data-counts="{{ species_counts }}"></canvas>
-                </div>
-            </div>
+    <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb" role="list">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><span>Sites</span></li>
+            </ol>
         </div>
-
-        <!-- Middle Row: Water Quality Radar and Cage Distribution -->
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
-            <div class="card">
-                <h2>Average Water Conditions</h2>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="waterQualityChart"
-                            data-avg-temp="{{ avg_water_temp }}"
-                            data-avg-salinity="{{ avg_salinity }}"
-                            data-avg-depth="{{ avg_water_depth }}"
-                            data-avg-current="{{ avg_current_speed }}"
-                            data-avg-wave="{{ avg_wave_exposure }}"></canvas>
+    </nav>
+    
+    <main id="main-content" role="main" class="main-content" tabindex="-1">
+        <div class="content-wrapper">
+            <header class="page-header">
+                <div class="page-header-content">
+                    <h2 class="page-title">Site Management</h2>
+                    <p class="page-description">Monitoring {{ sites|length }} active aquaculture sites with environmental and operational metrics</p>
                 </div>
-            </div>
-            
-            <div class="card">
-                <h2>Top Sites by Cage Count</h2>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="cageDistributionChart"
-                            data-labels="{{ top_site_labels }}"
-                            data-counts="{{ top_site_counts }}"></canvas>
-                </div>
-            </div>
-        </div>
+            </header>
 
-        <!-- Bottom Row: Profit Trend -->
-        <div class="card">
-            <h2>Profit Margin by Site</h2>
-            <div class="chart-container" style="height: 300px;">
-                <canvas id="profitTrendChart"
-                        data-site-ids="{{ profit_site_ids }}"
-                        data-profit-margins="{{ profit_margins }}"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Site Overview</h2>
-            <p class="text-light">Monitoring {{ sites|length }} active aquaculture sites</p>
-        </div>
-
-        <!-- Sites Grid -->
-        <div class="grid">
-            {% for site in sites %}
-            <div class="card">
-                <h2>Site #{{ site.site_id }}</h2>
-                
-                <div class="site-details">
-                    <div class="detail-row">
-                        <strong>Location:</strong>
-                        <span>{{ "%.4f"|format(site.latitude) }}, {{ "%.4f"|format(site.longitude) }}</span>
+            <section aria-labelledby="site-distribution-heading">
+                <h3 id="site-distribution-heading" class="section-title">Site Distribution Analysis</h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                    <div class="card">
+                        <h4>Sites by Regulatory Zone</h4>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="regulatoryZoneChart" 
+                                    data-labels="{{ zone_labels }}"
+                                    data-counts="{{ zone_counts }}"></canvas>
+                        </div>
                     </div>
                     
-                    <div class="detail-row">
-                        <strong>Water Depth:</strong>
-                        <span>{{ "%.2f"|format(site.water_depth_m) }} m</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Distance from Shore:</strong>
-                        <span>{{ "%.2f"|format(site.distance_from_shore_km) }} km</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Current Speed:</strong>
-                        <span>{{ "%.2f"|format(site.avg_current_speed_m_s) }} m/s</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Water Temperature:</strong>
-                        <span>{{ "%.1f"|format(site.water_temp_c) }}°C</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Salinity:</strong>
-                        <span>{{ "%.2f"|format(site.salinity_psu) }} PSU</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Wave Exposure:</strong>
-                        <span>{{ "%.2f"|format(site.wave_exposure_index) }}</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Regulatory Zone:</strong>
-                        <span class="badge badge-info">{{ site.regulatory_zone }}</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <strong>Active Cages:</strong>
-                        <span class="badge badge-success">{{ site.cage_count }}</span>
+                    <div class="card">
+                        <h4>Species Distribution</h4>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="speciesChart"
+                                    data-labels="{{ species_labels }}"
+                                    data-counts="{{ species_counts }}"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
+            </section>
 
-        <!-- Detailed Sites Table -->
-        <div class="card">
-            <h2>All Sites Data</h2>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Site ID</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th>Water Depth (m)</th>
-                            <th>Shore Distance (km)</th>
-                            <th>Current Speed (m/s)</th>
-                            <th>Temperature (°C)</th>
-                            <th>Salinity (PSU)</th>
-                            <th>Regulatory Zone</th>
-                            <th>Active Cages</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for site in sites %}
-                        <tr>
-                            <td><strong>{{ site.site_id }}</strong></td>
-                            <td>{{ "%.4f"|format(site.latitude) }}</td>
-                            <td>{{ "%.4f"|format(site.longitude) }}</td>
-                            <td>{{ "%.2f"|format(site.water_depth_m) }}</td>
-                            <td>{{ "%.2f"|format(site.distance_from_shore_km) }}</td>
-                            <td>{{ "%.2f"|format(site.avg_current_speed_m_s) }}</td>
-                            <td>{{ "%.1f"|format(site.water_temp_c) }}</td>
-                            <td>{{ "%.2f"|format(site.salinity_psu) }}</td>
-                            <td><span class="badge badge-info">{{ site.regulatory_zone }}</span></td>
-                            <td><span class="badge badge-success">{{ site.cage_count }}</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <section aria-labelledby="environmental-heading">
+                <h3 id="environmental-heading" class="section-title">Environmental Conditions</h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                    <div class="card">
+                        <h4>Average Water Conditions</h4>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="waterQualityChart"
+                                    data-avg-temp="{{ avg_water_temp }}"
+                                    data-avg-salinity="{{ avg_salinity }}"
+                                    data-avg-depth="{{ avg_water_depth }}"
+                                    data-avg-current="{{ avg_current_speed }}"
+                                    data-avg-wave="{{ avg_wave_exposure }}"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Top Sites by Cage Count</h4>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="cageDistributionChart"
+                                    data-labels="{{ top_site_labels }}"
+                                    data-counts="{{ top_site_counts }}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="card">
+                <h3>Profit Margin by Site</h3>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="profitTrendChart"
+                            data-site-ids="{{ profit_site_ids }}"
+                            data-profit-margins="{{ profit_margins }}"></canvas>
+                </div>
             </div>
+
+            <section aria-labelledby="site-cards-heading">
+                <h3 id="site-cards-heading" class="section-title">Site Details</h3>
+                <div class="grid">
+                    {% for site in sites %}
+                    <article class="card">
+                        <h4>Site #{{ site.site_id }}</h4>
+                        
+                        <div class="site-details">
+                            <div class="detail-row">
+                                <strong>Location:</strong>
+                                <span>{{ "%.4f"|format(site.latitude) }}, {{ "%.4f"|format(site.longitude) }}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Water Depth:</strong>
+                                <span>{{ "%.2f"|format(site.water_depth_m) }} m</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Distance from Shore:</strong>
+                                <span>{{ "%.2f"|format(site.distance_from_shore_km) }} km</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Current Speed:</strong>
+                                <span>{{ "%.2f"|format(site.avg_current_speed_m_s) }} m/s</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Water Temperature:</strong>
+                                <span>{{ "%.1f"|format(site.water_temp_c) }}°C</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Salinity:</strong>
+                                <span>{{ "%.2f"|format(site.salinity_psu) }} PSU</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Wave Exposure:</strong>
+                                <span>{{ "%.2f"|format(site.wave_exposure_index) }}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Regulatory Zone:</strong>
+                                <span class="badge badge-info">{{ site.regulatory_zone }}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <strong>Active Cages:</strong>
+                                <span class="badge badge-success">{{ site.cage_count }}</span>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section aria-labelledby="all-sites-heading">
+                <h3 id="all-sites-heading" class="section-title">All Sites Data</h3>
+                <div class="table-container">
+                    <div class="table-wrapper" role="region" aria-labelledby="all-sites-heading" tabindex="0">
+                        <table class="data-table">
+                            <caption class="visually-hidden">Complete site data including location, environmental conditions, and operational metrics</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Site ID</th>
+                                    <th scope="col">Latitude</th>
+                                    <th scope="col">Longitude</th>
+                                    <th scope="col">Water Depth (m)</th>
+                                    <th scope="col">Shore Distance (km)</th>
+                                    <th scope="col">Current Speed (m/s)</th>
+                                    <th scope="col">Temperature (°C)</th>
+                                    <th scope="col">Salinity (PSU)</th>
+                                    <th scope="col">Regulatory Zone</th>
+                                    <th scope="col">Active Cages</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for site in sites %}
+                                <tr>
+                                    <td><strong class="table-primary">{{ site.site_id }}</strong></td>
+                                    <td class="table-numeric">{{ "%.4f"|format(site.latitude) }}</td>
+                                    <td class="table-numeric">{{ "%.4f"|format(site.longitude) }}</td>
+                                    <td class="table-numeric">{{ "%.2f"|format(site.water_depth_m) }}</td>
+                                    <td class="table-numeric">{{ "%.2f"|format(site.distance_from_shore_km) }}</td>
+                                    <td class="table-numeric">{{ "%.2f"|format(site.avg_current_speed_m_s) }}</td>
+                                    <td class="table-numeric">{{ "%.1f"|format(site.water_temp_c) }}</td>
+                                    <td class="table-numeric">{{ "%.2f"|format(site.salinity_psu) }}</td>
+                                    <td><span class="badge badge-info">{{ site.regulatory_zone }}</span></td>
+                                    <td><span class="badge badge-success">{{ site.cage_count }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <footer role="contentinfo" class="app-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3 class="footer-title">Aquaculture Management System</h3>
+                <p class="footer-text">Enterprise-grade analytics and risk management for aquaculture operations worldwide.</p>
+            </div>
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Platform</h4>
+                <ul class="footer-links">
+                    <li><a href="/analytics">Financial Analytics</a></li>
+                    <li><a href="/risk-analytics">Risk Assessment</a></li>
+                    <li><a href="/model-results">Predictive Models</a></li>
+                    <li><a href="/water-quality">Environmental Monitoring</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4 class="footer-subtitle">System Status</h4>
+                <ul class="footer-info">
+                    <li><strong>Version:</strong> 1.0.0</li>
+                    <li><strong>Last Updated:</strong> <time datetime="2026-02-08">February 8, 2026</time></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copyright">&copy; <time datetime="2026">2026</time> Aquaculture Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </body>
 </html>
