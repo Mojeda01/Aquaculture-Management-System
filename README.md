@@ -1,7 +1,5 @@
-# Aquaculture Management System
-
 <div align="center">
-  <img src="logos/title_logo.png" alt="Aquaculture Management System" width="400"/>
+  <img src="logos/title_logo.png" alt="Aquaculture Management System"/>
 </div>
 
 <div align="center">
