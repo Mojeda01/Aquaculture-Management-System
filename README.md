@@ -92,7 +92,7 @@ Enterprise-grade aquaculture management platform featuring advanced statistical 
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Mojeda01/Aquaculture-Management-System.git
 cd aquaculture-management-system
 ```
 
